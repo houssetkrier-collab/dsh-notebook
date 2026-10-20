@@ -16,6 +16,14 @@
   "engines": {
     "node": ">=22"
   },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "notes",
+    "markdown",
+    "cordis"
+  ],
   "dsh": {
     "id": "dsh-notebook",
     "name": "notebook",
@@ -26,7 +34,16 @@
   },
   "scripts": {
     "verify": "node test/verify.mjs && node test/sdk-check.mjs && node test/profile-check.mjs",
+    "verify:standalone": "node test/verify.mjs",
     "push:api": "node scripts/push-api.mjs"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/houssetkrier-collab/dsh-notebook.git"
+  },
+  "bugs": {
+    "url": "https://github.com/houssetkrier-collab/dsh-notebook/issues"
+  },
+  "homepage": "https://github.com/houssetkrier-collab/dsh-notebook#readme",
   "license": "MIT"
 }
