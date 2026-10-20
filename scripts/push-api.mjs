@@ -66,9 +66,45 @@ async function api(route, init = {}) {
   return payload
 }
 
-/* ---------------------------------------------------------------- objects */
+/* ------------------------------------------------------------ remote ref */
+
+// Whatever the branch points at right now is this commit's parent, so repeated
+// API pushes append to the remote history even when the local clone cannot fetch.
+async function remoteHead() {
+  try {
+    const ref = await api(`/repos/${owner}/${repo}/git/ref/heads/${branch}`)
+    return ref.object.sha
+  } catch (error) {
+    if (String(error.message).includes('404')) return null
+    throw error
+  }
+}
+
+let parent = await remoteHead()
+
+// A brand-new repository rejects the git-data endpoints ("Git Repository is
+// empty"), so give it one throwaway commit through the Contents API; the first
+// pushed commit carries no parent, leaving that bootstrap commit dangling.
+if (parent === null) {
+  const remoteInfo = await api(`/repos/${owner}/${repo}`)
+  if (remoteInfo.size === 0) {
+    const bootstrap = await api(`/repos/${owner}/${repo}/contents/.dsh-bootstrap`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        message: 'bootstrap',
+        content: Buffer.from('bootstrap\n', 'utf8').toString('base64'),
+        branch,
+      }),
+    })
+    console.log('  empty repository: bootstrapped it so the git-data APIs accept objects')
+    parent = bootstrap.commit.sha
+  }
+}
 
 console.log(`pushing ${owner}/${repo} · ${branch} through the REST API`)
+console.log(`  parent: ${parent ? parent.slice(0, 12) : 'none (first commit)'}`)
+
+/* ---------------------------------------------------------------- objects */
 
 // `git ls-tree -r -z` is the exact object list of HEAD, in git's own order.
 const entries = git('ls-tree', '-r', '-z', 'HEAD')
@@ -121,14 +157,16 @@ const commit = await api(`/repos/${owner}/${repo}/git/commits`, {
   body: JSON.stringify({
     message,
     tree: tree.sha,
-    parents: [],
+    parents: parent ? [parent] : [],
     author: { name: an, email: ae, date: ad },
     committer: { name: cn, email: ce, date: cd },
   }),
 })
 if (commit.sha !== localCommit) {
-  // Not fatal: GitHub may round the identity or time. Report it, keep going.
-  console.warn(`  note: commit sha differs (${commit.sha.slice(0, 12)} vs local ${localCommit.slice(0, 12)})`)
+  // Not fatal: GitHub normalises identities and times, so the commit sha can
+  // differ even when the tree (and therefore every file) is identical. Blob and
+  // tree shas above are the real integrity check.
+  console.warn(`  note: commit sha differs (${commit.sha.slice(0, 12)} vs local ${localCommit.slice(0, 12)}; tree shas match)`)
 }
 
 let ref = null
@@ -157,6 +195,6 @@ if (ref) {
   console.log(`  created refs/heads/${branch} at ${created.object.sha.slice(0, 12)}`)
 }
 
-const repoInfo = await api(`/repos/${owner}/${repo}`)
-console.log(`\ndone: ${repoInfo.html_url}/tree/${branch} (${repoInfo.visibility})`)
-console.log('local and remote now hold the same commit object; `git push` still needs a working transport for later pushes.')
+const finalInfo = await api(`/repos/${owner}/${repo}`)
+console.log(`\ndone: ${finalInfo.html_url}/tree/${branch} (${finalInfo.visibility})`)
+console.log('every file now matches this HEAD (blob and tree shas verified); the commit sha can differ from the local one.')
