@@ -1,5 +1,7 @@
 # dsh-notebook
 
+[![ci](https://github.com/houssetkrier-collab/dsh-notebook/actions/workflows/ci.yml/badge.svg)](https://github.com/houssetkrier-collab/dsh-notebook/actions/workflows/ci.yml)
+
 一个零依赖的 **DSH 插件**示例兼实用工具：把「笔记」做成模型可直接调用的 5 个工具 + 1 个斜杠命令，落在本地 markdown 目录里，跨会话留存。
 
 ```
