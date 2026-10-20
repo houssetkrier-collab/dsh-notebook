@@ -1,0 +1,32 @@
+{
+  "name": "dsh-notebook",
+  "version": "0.1.0",
+  "description": "A tiny, dependency-free DSH plugin: durable markdown notes as five model-facing tools plus a /note slash command.",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "dsh": {
+    "id": "dsh-notebook",
+    "name": "notebook",
+    "version": "0.1.0",
+    "bundle": {
+      "patch": "cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "verify": "node test/verify.mjs && node test/sdk-check.mjs && node test/profile-check.mjs",
+    "push:api": "node scripts/push-api.mjs"
+  },
+  "license": "MIT"
+}

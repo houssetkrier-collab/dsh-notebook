@@ -1,0 +1,16 @@
+# dsh-notebook — profile patch template.
+#
+# Copy the `insert` block below into
+#   %USERPROFILE%\.dsh\profiles\<profile>\cordis.patch.yml
+# (that file is a top-level YAML array; put this block as one more array item)
+# and make the package resolvable from the profile, e.g.
+#   mklink /J "%USERPROFILE%\.dsh\profiles\desktop\node_modules\dsh-notebook" PATH_TO_THIS_REPO
+
+- insert:
+    - id: dsh-notebook
+      name: dsh-notebook
+      # config is optional; omit it for ~/.dsh/notebook with 200 notes / 256 KiB each.
+      # config:
+      #   dir: D:\notes
+      #   maxNotes: 500
+      #   maxNoteBytes: 524288

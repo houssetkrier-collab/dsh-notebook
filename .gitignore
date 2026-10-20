@@ -1,0 +1,15 @@
+# dependencies (this plugin ships none, but tests may pull them in)
+node_modules/
+
+# installer backups and atomic-write leftovers
+*.bak-notebook-*
+*.tmp-*
+
+# os noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# local experiments
+scratch/
+*.local.*
